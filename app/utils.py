@@ -3,7 +3,7 @@ from math import ceil
 from os import getcwd, path, walk
 from re import compile
 
-# from py_vmdetect import VMDetect
+from py_vmdetect import VMDetect
 
 
 def join_chunk(file_path: str):
@@ -47,9 +47,9 @@ def get_file_info_from_path(file_path: str):
     return dir_name, filename, ext
 
 
-# def is_env_vm():
-#     vmd = VMDetect()
-#     return vmd.is_vm()
+def is_env_vm():
+    vmd = VMDetect()
+    return vmd.is_vm()
 
 
 def generate_source_hash():
@@ -72,5 +72,5 @@ def is_source_modified():
     file = open(filepath, "r")
     stored_hash = file.read()
     file.close()
-    print(initial_hash, stored_hash)
+    print(initial_hash)
     return stored_hash != initial_hash

@@ -4,8 +4,7 @@ from sys import argv, exit
 from tkinter import filedialog, messagebox, simpledialog
 
 from aes import AES256
-from utils import (is_source_modified,
-                   join_chunk, write_to_chunk)
+from utils import is_env_vm, is_source_modified, join_chunk, write_to_chunk
 
 argumentList = argv[1:]
 
@@ -121,6 +120,6 @@ def main():
 if __name__ == "__main__":
     if is_source_modified():
         exit(1)
-    # if is_env_vm():
-    #     exit(1)
+    if is_env_vm():
+        exit(1)
     main()
