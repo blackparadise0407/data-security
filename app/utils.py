@@ -1,6 +1,10 @@
+from hashlib import md5
 from math import ceil
-from os import path, walk
+from ntpath import join
+from os import getcwd, path, walk
 from re import compile
+
+from py_vmdetect import VMDetect
 
 
 def join_chunk(file_path: str):
@@ -42,3 +46,30 @@ def get_file_info_from_path(file_path: str):
     file = path.basename(file_path)
     filename, ext = file.split(".")
     return dir_name, filename, ext
+
+
+def is_env_vm():
+    vmd = VMDetect()
+    return vmd.is_vm()
+
+
+def generate_source_hash():
+    curr_dir = join(getcwd(), "app")
+    searched_regex = compile(r"\.py$")
+    str_to_hashed = ""
+    for (dirpath, dirnames, filenames) in walk(curr_dir):
+        for filename in filenames:
+            if searched_regex.search(filename):
+                f = open(join(curr_dir, filename))
+                str_to_hashed += f.read()
+                f.close()
+
+    return md5(str_to_hashed.encode()).hexdigest()
+
+
+def is_source_modified(hash: str):
+    filepath = join(getcwd(), "app", ".secret")
+    file = open(filepath, "r")
+    stored_hash = file.read()
+    file.close()
+    return stored_hash != hash

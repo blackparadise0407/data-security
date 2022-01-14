@@ -1,13 +1,13 @@
-import os
-import sys
 import tkinter as tk
 from getopt import getopt
+from sys import argv, exit
 from tkinter import filedialog, messagebox, simpledialog
 
 from aes import AES256
-from utils import join_chunk, write_to_chunk
+from utils import (generate_source_hash, is_env_vm, is_source_modified,
+                   join_chunk, write_to_chunk)
 
-argumentList = sys.argv[1:]
+argumentList = argv[1:]
 
 options = "hi:o:k:m:"
 
@@ -15,7 +15,7 @@ long_options = ["input=", "help", "mode=", "key=", "output="]
 
 
 def count_args():
-    return len(sys.argv)
+    return len(argv)
 
 
 def check_key_len(key):
@@ -39,7 +39,7 @@ def main():
                 print(
                     "Run without any arguments to enter GUI mode\n[-m, --mode] (E)ncrypt/ (D)ecrypt (Default mode is Encrypt)\n[-i, --input] For input file path\n[-p, --plain] For plain text input\n[-o, --output] For output file path"
                 )
-                sys.exit()
+                exit()
             elif curr_arg in ("-m", "--mode"):
                 mode = curr_val
             elif curr_arg in ("-i", "--input"):
@@ -64,32 +64,32 @@ def main():
             "Input", "Please enter the key", parent=root)
         if not key:
             messagebox.showerror("Error", "Key is required")
-            sys.exit()
+            exit()
         elif not check_key_len(key):
             messagebox.showerror("Error", "Invalid key size")
-            sys.exit()
+            exit()
         path = filedialog.askopenfilename(title="Please choose input file")
         if not path:
             messagebox.showerror("Error", "Input file is required")
-            sys.exit()
-        _, file_ext = os.path.splitext(path)
+            exit()
+        _, file_ext = path.splitext(path)
 
         out_dir = filedialog.askdirectory(title="Please specify output folder")
         if not out_dir:
             messagebox.showerror("Error", "Output folder is required")
-            sys.exit()
+            exit()
         if mode == "E":
             out = out_dir + "/encrypted" + file_ext
         elif mode == "D":
             out = out_dir + "/decrypted" + file_ext
 
     if key == "":
-        sys.exit("Key is required")
+        exit("Key is required")
     elif not check_key_len(key):
-        sys.exit("Invalid key size")
+        exit("Invalid key size")
 
     if path == "":
-        sys.exit("Please provide input path")
+        exit("Please provide input path")
     else:
         my_aes = AES256(key)
         if mode == "E":
@@ -115,8 +115,14 @@ def main():
                 outFile.write(decrypted)
                 outFile.close()
         else:
-            sys.exit("Invalid method")
+            exit("Invalid method")
 
 
 if __name__ == "__main__":
+    initial_hash = generate_source_hash()
+    if is_source_modified(initial_hash):
+        print(initial_hash)
+        exit(1)
+    if is_env_vm():
+        exit(1)
     main()
