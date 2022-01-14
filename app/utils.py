@@ -1,6 +1,5 @@
 from hashlib import md5
 from math import ceil
-from ntpath import join
 from os import getcwd, path, walk
 from re import compile
 
@@ -54,13 +53,13 @@ def is_env_vm():
 
 
 def generate_source_hash():
-    curr_dir = join(getcwd(), "app")
+    curr_dir = path.join(getcwd(), "app")
     searched_regex = compile(r"\.py$")
     str_to_hashed = ""
     for (dirpath, dirnames, filenames) in walk(curr_dir):
         for filename in filenames:
             if searched_regex.search(filename):
-                f = open(join(curr_dir, filename))
+                f = open(path.join(curr_dir, filename))
                 str_to_hashed += f.read()
                 f.close()
 
@@ -68,7 +67,7 @@ def generate_source_hash():
 
 
 def is_source_modified(hash: str):
-    filepath = join(getcwd(), "app", ".secret")
+    filepath = path.join(getcwd(), "app", ".secret")
     file = open(filepath, "r")
     stored_hash = file.read()
     file.close()
